@@ -58,3 +58,6 @@ cat /tmp/cert-block.txt >> "${c2_profile_location}/ocsp.profile"
 
 # Clean up
 rm /tmp/cert-block.txt
+
+#Generate SourcePoint profile
+./SourcePoint -Host "${domain_name}"  -Outfile "${c2_profile_location}/SourcePoint-$(date '+%Y-%m-%d')".profile -Injector NtMapViewOfSection -Stage True -Password "$password" -Keystore "${domain}.store"
