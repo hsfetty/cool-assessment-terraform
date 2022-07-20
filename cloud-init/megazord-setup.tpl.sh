@@ -35,8 +35,13 @@ python3 /tools/cs2modrewrite/cs2modrewrite.py -i "${c2_profile_location}/SourceP
 
 echo "htaccess file created at /tools/Megazord-Composition/src/apache2/.htaccess"
 
+#Remove proxy flag from .htaccess
+sed -i 's/\[P,L]/[L]/g' /tools/Megazord-Composition/src/apache2/.htaccess
+
 echo "Starting the megazord composition service"
 
 systemctl daemon-reload
 systemctl enable megazord-composition.service
 systemctl start megazord-composition.service
+
+echo "megazord-composition.service has been started"
