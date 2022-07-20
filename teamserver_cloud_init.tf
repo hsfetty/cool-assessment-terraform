@@ -113,4 +113,14 @@ data "cloudinit_config" "teamserver_cloud_init_tasks" {
     content_type = "text/x-shellscript"
     filename     = "02-add-https-certificate-block-to-cs-profiles.sh"
   }
+
+  part {
+    content = templatefile(
+      "${path.module}/cloud-init/megazord-setup.tpl.sh", {
+        c2_profile_location = "/tools/Malleable-C2-Profiles/normal"
+        domain              = element(var.email_sending_domains, count.index)
+    })
+    content_type = "text/x-shellscript"
+    filename     = "megazord-setup.sh"
+  }
 }
