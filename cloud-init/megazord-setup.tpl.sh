@@ -39,15 +39,13 @@ echo "creating pseudo-random string for payload endpoint"
 
 endpoint="Alias /$(openssl rand -hex 6)/somethingelse '/var/www/uploads'"
 
-
 echo "\033[1;31m************************************************************"
 echo ""
 echo "\033[1;31m$endpoint"
 echo ""
 echo "\033[1;31m************************************************************"
 
-
-uploads=$(cat /tools/Megazord-Composition/src/apache2/apache2.conf | grep 'Alias')
+uploads=$(grep 'Alias' < /tools/Megazord-Composition/src/apache2/apache2.conf)
 
 #uploads=$(cat /tools/Megazord-Composition/src/apache2/apache2.conf | grep 'Alias' | cut -d ' ' -f 2 | cut -b 2-8)
 
