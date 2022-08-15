@@ -35,6 +35,24 @@ python3 /tools/cs2modrewrite/cs2modrewrite.py -i "${c2_profile_location}/SourceP
 
 echo "htaccess file created at /tools/Megazord-Composition/src/apache2/.htaccess"
 
+echo "creating pseudo-random string for payload endpoint"
+
+endpoint="Alias /$(openssl rand -hex 6)/somethingelse '/var/www/uploads'"
+
+
+echo "\033[1;31m************************************************************"
+echo ""
+echo "\033[1;31m$endpoint"
+echo ""
+echo "\033[1;31m************************************************************"
+
+
+uploads=$(cat /tools/Megazord-Composition/src/apache2/apache2.conf | grep 'Alias')
+
+#uploads=$(cat /tools/Megazord-Composition/src/apache2/apache2.conf | grep 'Alias' | cut -d ' ' -f 2 | cut -b 2-8)
+
+sed -i "s/$uploads/$uploads/" /tools/Megazord-Composition/src/apache2/apache2.conf
+
 echo "Starting the megazord composition service"
 
 systemctl daemon-reload
