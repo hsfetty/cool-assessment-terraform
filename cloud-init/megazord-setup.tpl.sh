@@ -49,7 +49,7 @@ uploads=$(grep 'Alias' < /tools/Megazord-Composition/src/apache2/apache2.conf)
 
 #uploads=$(cat /tools/Megazord-Composition/src/apache2/apache2.conf | grep 'Alias' | cut -d ' ' -f 2 | cut -b 2-8)
 
-sed -i "s/$uploads/$uploads/" /tools/Megazord-Composition/src/apache2/apache2.conf
+sed -i "s/$uploads/$endpoint/" /tools/Megazord-Composition/src/apache2/apache2.conf
 
 echo "Starting the megazord composition service"
 
