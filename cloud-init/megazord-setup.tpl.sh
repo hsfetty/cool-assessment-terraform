@@ -31,7 +31,7 @@ CORE_BLOCK
 echo "Generating .htaccess with cs2modrewrite.py"
 
 # shellcheck disable=SC2154
-python3 /tools/cs2modrewrite/cs2modrewrite.py -i "${c2_profile_location}/SourcePoint-$(date '+%Y-%m-%d')".profile -c https://"${domain}" -r "$redirect_location" -o /tools/Megazord-Composition/src/apache2/.htaccess
+python3 /tools/cs2modrewrite/cs2modrewrite.py -i "/opt/cobaltstrike/${domain}-$(date '+%Y-%m-%d')".profile -c https://"${domain}" -r "$redirect_location" -o /tools/Megazord-Composition/src/apache2/.htaccess
 
 echo "htaccess file created at /tools/Megazord-Composition/src/apache2/.htaccess"
 
@@ -39,17 +39,36 @@ echo "creating pseudo-random string for payload endpoint"
 
 endpoint="Alias /$(openssl rand -hex 6)/somethingelse '/var/www/uploads'"
 
+uploads=$(grep 'Alias' < /tools/Megazord-Composition/src/apache2/apache2.conf)
+
+#uploads=$(cat /tools/Megazord-Composition/src/apache2/apache2.conf | grep 'Alias' | cut -d ' ' -f 2 | cut -b 2-8)
+
+sed -i "s/$uploads/$endpoint/" /tools/Megazord-Composition/src/apache2/apache2.conf
+
 echo "\033[1;31m************************************************************"
 echo ""
 echo "\033[1;31m$endpoint"
 echo ""
 echo "\033[1;31m************************************************************"
 
-uploads=$(grep 'Alias' < /tools/Megazord-Composition/src/apache2/apache2.conf)
+echo "payload endpoint updated to $endpoint"
 
-#uploads=$(cat /tools/Megazord-Composition/src/apache2/apache2.conf | grep 'Alias' | cut -d ' ' -f 2 | cut -b 2-8)
+echo "Extracting certificate and key from keystore"
+# The certificate and key are expected to be in /opt/cobaltstrike because that directory gets mounted
+# into the cobalt container when the megazord-composition.service is ran
 
-sed -i "s/$uploads/$endpoint/" /tools/Megazord-Composition/src/apache2/apache2.conf
+# path to keystore file
+keystore_path = "${c2_profile_location}/${domain}.store"
+
+# extract certificate from keystore and output into /opt/cobaltstrike
+keytool -export -alias ${domain} -keystore ${keystore_path} -rfc -file "/opt/cobaltstrike/cobalt.cert"
+
+echo "certificate extracted to /opt/cobaltstrike/cobalt.cert"
+
+# Extract private key from keystore and output into /opt/cobaltstrike
+openssl pkcs12 -in ${keystore_path} -nodes -nocerts -out "/opt/cobaltstrike/cobalt.key"
+
+echo "key extraced to /opt/cobaltstrike/cobalt.key"
 
 echo "Starting the megazord composition service"
 
