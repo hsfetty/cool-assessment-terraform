@@ -61,3 +61,25 @@ rm /tmp/cert-block.txt
 
 #Generate SourcePoint profile
 ./tools/sourcepoint/SourcePoint -Host "${domain}" -Outfile "/opt/cobaltstrike/${domain}-$(date '+%Y-%m-%d')".profile -Injector NtMapViewOfSection -Stage True -Password "$password" -Keystore "${c2_profile_location}/${domain}.store"
+
+echo "Extracting certificate and key from keystore"
+# The certificate and key are expected to be in /opt/cobaltstrike because that directory gets m>
+# into the cobalt container when the megazord-composition.service is ran
+
+# path to keystore file
+keystore_path = "${c2_profile_location}/${domain}.store"
+
+# extract certificate from keystore and output into /opt/cobaltstrike
+keytool -export -alias $domain -keystore $keystore_path -storepass $password -rfc -file "/opt/cobaltstrike/cobalt.cert"
+
+echo "certificate extracted to /opt/cobaltstrike/cobalt.cert"
+
+# Extract private key from keystore and output into /opt/cobaltstrike
+openssl pkcs12 -in $keystore_path -passin pass:$password -nodes -nocerts -out "/opt/cobaltstrike/cobalt.key"
+
+echo "key extraced to /opt/cobaltstrike/cobalt.key"
+
+echo "Extracting certificate bundles from keystore"
+
+keystore -list -rfc -keystore $keystore_path -storepass $password > /opt/cobaltstrike/ca-bundle.crt
+

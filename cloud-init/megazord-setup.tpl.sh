@@ -53,23 +53,6 @@ echo "\033[1;31m************************************************************"
 
 echo "payload endpoint updated to $endpoint"
 
-echo "Extracting certificate and key from keystore"
-# The certificate and key are expected to be in /opt/cobaltstrike because that directory gets mounted
-# into the cobalt container when the megazord-composition.service is ran
-
-# path to keystore file
-keystore_path = "${c2_profile_location}/${domain}.store"
-
-# extract certificate from keystore and output into /opt/cobaltstrike
-keytool -export -alias ${domain} -keystore ${keystore_path} -rfc -file "/opt/cobaltstrike/cobalt.cert"
-
-echo "certificate extracted to /opt/cobaltstrike/cobalt.cert"
-
-# Extract private key from keystore and output into /opt/cobaltstrike
-openssl pkcs12 -in ${keystore_path} -nodes -nocerts -out "/opt/cobaltstrike/cobalt.key"
-
-echo "key extraced to /opt/cobaltstrike/cobalt.key"
-
 echo "Starting the megazord composition service"
 
 systemctl daemon-reload
