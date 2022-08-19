@@ -18,7 +18,7 @@ redirect_location="https://google.com"
 echo "Writing CoreDNS Corefile..."
 
 # shellcheck disable=SC2154
-cat > /tools/Megazord-Composition/src/coredns/config/Corefile << CORE_BLOCK
+cat > /tools/megazord-composition/src/coredns/config/Corefile << CORE_BLOCK
 
 .:53 {
 	forward . 8.8.8.8
@@ -31,25 +31,31 @@ CORE_BLOCK
 echo "Generating .htaccess with cs2modrewrite.py"
 
 # shellcheck disable=SC2154
-python3 /tools/cs2modrewrite/cs2modrewrite.py -i "/opt/cobaltstrike/${domain}-$(date '+%Y-%m-%d')".profile -c https://"${domain}" -r "$redirect_location" -o /tools/Megazord-Composition/src/apache2/.htaccess
+python3 /tools/cs2modrewrite/cs2modrewrite.py \
+	-i "/opt/cobaltstrike/${domain}-$(date '+%Y-%m-%d')".profile \
+	-c https://"${domain}" -r "$redirect_location" \
+	-o /tools/megazord-composition/src/apache2/.htaccess
 
-echo "htaccess file created at /tools/Megazord-Composition/src/apache2/.htaccess"
+echo "file created at /tools/Megazord-Composition/src/apache2/.htaccess"
 
-echo "creating pseudo-random string for payload endpoint"
+echo "Generating pseudo-random string for payload endpoint"
 
-endpoint="Alias /$(openssl rand -hex 6)/somethingelse '/var/www/uploads'"
+endpoint="/$(openssl rand -hex 6)/somethingelse"
+new_line="Alias ${endpoint} '/var/www/uploads'"
 
-uploads=$(grep 'Alias' < /tools/Megazord-Composition/src/apache2/apache2.conf)
+uploads=$(grep 'Alias' \
+	< /tools/megazord-composition/src/apache2/apache2.conf)
 
-sed -i "s|$uploads|$endpoint|" /tools/Megazord-Composition/src/apache2/apache2.conf
+sed -i "s|${uploads}|${new_line}|" \
+	/tools/megazord-composition/src/apache2/apache2.conf
 
 echo -e "\033[1;31m************************************************************"
 echo ""
-echo -e "\033[1;31m$endpoint"
+echo -e "\033[1;31m${endpoint}"
 echo ""
 echo -e "\033[1;31m************************************************************"
 
-echo "payload endpoint updated to $endpoint"
+echo "payload endpoint updated to ${endpoint}"
 
 echo "Starting the megazord composition service"
 
